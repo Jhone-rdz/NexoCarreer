@@ -269,6 +269,9 @@ class RespostasQuestionarioView(APIView):
             }
         )
 
+        request.user.refresh_from_db()
+        profile_data['objetivo_carreira'] = request.user.objetivo_carreira or ""
+
         return Response(profile_data, status=status.HTTP_200_OK)
 
     def get(self, request, *args, **kwargs):
@@ -372,6 +375,7 @@ class PerfilView(APIView):
             "nome": user.username,
             "email": user.email,
             "curso_tecnico": user.curso_tecnico or "",
+            "objetivo_carreira": user.objetivo_carreira or "",
             "nivel": {
                 "numero": nivel_num,
                 "nome": nivel_nome,

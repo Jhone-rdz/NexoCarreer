@@ -29,9 +29,7 @@ export default function HomeScreen() {
   const router = useRouter();
 
   // Load session statistics dynamically
-  const session = apiService.getSession();
-  const user = session.user;
-
+  const [user, setUser] = useState(() => apiService.getSession().user);
   const [perfil, setPerfil] = useState<PerfilUsuario | null>(null);
   const [cursos, setCursos] = useState<any[]>([]);
   const [isLoadingCursos, setIsLoadingCursos] = useState(true);
@@ -46,6 +44,10 @@ export default function HomeScreen() {
     React.useCallback(() => {
       const syncProfileAndCourses = async () => {
         try {
+          const currentSessionUser = apiService.getSession().user;
+          if (currentSessionUser) {
+            setUser(currentSessionUser);
+          }
           const pData = await apiService.getPerfil();
           setPerfil(pData);
         } catch (err) {
@@ -168,7 +170,7 @@ export default function HomeScreen() {
 
           <View style={styles.profileCardCenter}>
             <Text style={styles.profileCardName}>{userName || 'Estudante'}</Text>
-            <Text style={styles.profileCardCourse}>{user?.curso_tecnico || 'Estudante Técnico'}</Text>
+            <Text style={styles.profileCardCourse}>{perfil?.curso_tecnico || user?.curso_tecnico || 'Estudante Técnico'}</Text>
           </View>
 
           <View style={styles.profileCardRight}>
@@ -187,7 +189,7 @@ export default function HomeScreen() {
             <View style={styles.objectiveLeft}>
               <Text style={styles.objectiveTag}>Seu objetivo atual</Text>
               <Text style={styles.objectiveLabel}>Quero trabalhar com</Text>
-              <Text style={styles.objectiveTitle}>{user?.objetivo_carreira || 'Tecnologia'}</Text>
+              <Text style={styles.objectiveTitle}>{perfil?.objetivo_carreira || user?.objetivo_carreira || 'Tecnologia'}</Text>
               <Text style={styles.objectiveDesc}>
                 Continue aprendendo e evoluindo para alcançar seu objetivo.
               </Text>

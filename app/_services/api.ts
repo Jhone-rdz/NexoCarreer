@@ -31,6 +31,7 @@ export interface PerfilUsuario {
   nome: string;
   email: string;
   curso_tecnico: string;
+  objetivo_carreira?: string;
   nivel: {
     numero: number;
     nome: string;
@@ -489,17 +490,7 @@ export const apiService = {
       // Sync and update local session cache
       try {
         const profile = await apiService.getProfile(token);
-        if (session.user) {
-          session.user.onboarding_completo = profile.onboarding_completo;
-          session.user.nivel = profile.nivel;
-          session.user.xp = profile.xp;
-          session.user.streak = profile.streak;
-          session.user.xp_hoje = profile.xp_hoje;
-          session.user.respostas_hoje = profile.respostas_hoje;
-          session.user.forcas = profile.forcas;
-          session.user.disciplinas = profile.disciplinas;
-          session.user.progresso_geral = profile.progresso_geral;
-        }
+        session.user = profile;
       } catch (syncErr) {
         console.warn('Failed to sync session after saving answers:', syncErr);
       }

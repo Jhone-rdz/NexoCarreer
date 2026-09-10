@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { apiService } from '../_services/api';
@@ -18,28 +18,31 @@ import { apiService } from '../_services/api';
 export default function PerfilScreen() {
   const router = useRouter();
 
-  const session = apiService.getSession();
-  const user = session.user;
-
+  const [user, setUser] = useState(() => apiService.getSession().user);
   const [topCurso, setTopCurso] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchTopMatch = async () => {
-      try {
-        const data = await apiService.getCursos();
-        if (data && data.length > 0) {
-          // Courses list is pre-sorted by match DESC by backend, so first one is the top match
-          setTopCurso(data[0]);
-        }
-      } catch (err) {
-        console.warn('Error fetching courses in profile:', err);
-      } finally {
-        setLoading(false);
+  useFocusEffect(
+    React.useCallback(() => {
+      const currentUser = apiService.getSession().user;
+      if (currentUser) {
+        setUser(currentUser);
       }
-    };
-    fetchTopMatch();
-  }, []);
+      const fetchTopMatch = async () => {
+        try {
+          const data = await apiService.getCursos();
+          if (data && data.length > 0) {
+            setTopCurso(data[0]);
+          }
+        } catch (err) {
+          console.warn('Error fetching courses in profile:', err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchTopMatch();
+    }, [])
+  );
 
   const handleBack = () => {
     router.back();
